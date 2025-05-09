@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蜂蜜收集进度</title>
+    <style>
+        * {
+            outline: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        button {
+            outline: none;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+            -webkit-user-select: none;
+            -moz-user-focus: none;
+            -moz-user-select: none;
+        }
+
+        body {
+            /* background-color: #f5f5f5; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 360px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .progress-text {
+            position: absolute;
+            z-index: 1;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            top: 30%;
+            bottom: 30%;
+            left: 30%;
+            right: 30%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .progress-circle svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-circle .circle {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 3;
+        }
+
+        .progress-circle .progress {
+            fill: none;
+            stroke: #ffc107;
+            stroke-width: 3;
+            stroke-dasharray: 50, 100;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.5s ease;
+            stroke-linecap: round;
+        }
+
+        .info {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            width: 100%;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-item label {
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+        }
+
+        .info-item span {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+
+        .chart {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .chart-item {
+            width: 30%;
+            text-align: center;
+        }
+
+        .chart-item .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .chart-item .label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .button {
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">蜂蜜收集进度</div>
+        <!-- <div class="progress-circle">
+            <div class="progress-text">60%</div>
+        </div> -->
+        <div class="progress-circle">
+            <svg viewBox="0 0 36 36">
+                <path class="circle"
+                    d="M18 2.0845 a 15.9155 15.9155 0 1 1 0 31.831 a 15.9155 15.9155 0 1 1 0 -31.831" />
+                <path class="progress"
+                    d="M18 2.0845 a 15.9155 15.9155 0 1 1 0 31.831 a 15.9155 15.9155 0 1 1 0 -31.831" />
+            </svg>
+            <div class="progress-text">60%</div>
+        </div>
+        <div class="info">
+            <div class="info-item">
+                <label>当前桶进度</label>
+                <span>60%</span>
+            </div>
+            <div class="info-item">
+                <label>已收集桶数</label>
+                <span>120</span>
+            </div>
+            <div class="info-item">
+                <label>目标桶数</label>
+                <span>200</span>
+            </div>
+            <div class="info-item">
+                <label>生产速率</label>
+                <span>10桶/小时</span>
+            </div>
+            <div class="info-item">
+                <label>预计完成时间</label>
+                <span>8小时</span>
+            </div>
+        </div>
+        <div class="chart">
+            <div class="chart-item">
+                <div class="value">120桶</div>
+                <div class="label">今日产量</div>
+            </div>
+            <div class="chart-item">
+                <div class="value">100桶</div>
+                <div class="label">昨日产量</div>
+            </div>
+            <div class="chart-item">
+                <div class="value">720桶</div>
+                <div class="label">本周产量</div>
+            </div>
+        </div>
+        <button class="button">查看详细</button>
+    </div>
+</body>
+
+</html>

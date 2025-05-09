@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>蜂箱监控</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      /* background-color: #f6f8fa; */
+      color: #333;
+    }
+    .section {
+      padding: 16px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 16px;
+    }
+    .title {
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    .realtime-img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      padding: 4px 0;
+      border-top: 1px solid #eee;
+    }
+    .data-row:first-of-type {
+      border-top: none;
+    }
+    #nolink.link{
+      display: none;
+    }
+    #nolink.nolink{
+      text-align: center;
+      display: block;
+      transform: translateY(-70%);
+    }
+  </style>
+</head>
+<body>
+
+<div class="section">
+  <div class="card">
+    <div class="title">🐝 实时监控</div>
+
+    <!-- MJPEG视频流区域 -->
+    <div style="position:relative">
+      <img id="streamImg" class="realtime-img" src="http://192.168.65.227/camera" 
+           onerror="handleStreamError(this)">
+      <h1 id="nolink" class="link">无法连接设备</h1>
+    </div>
+
+    <!-- 虫害识别信息 -->
+    <div class="data-row"><span>虫害识别结果</span><span>无害虫</span></div>
+    <div class="data-row"><span>上次识别时间</span><span>2025-05-06 14:32</span></div>
+    <div class="data-row"><span>设备状态</span><span>在线</span></div>
+    <div class="data-row"><span>网络延迟</span><span>129ms</span></div>
+  </div>
+
+  <script>
+    const nolink = document.getElementById("nolink");
+    function handleStreamError(img){
+      nolink.classList.remove("link");
+      nolink.classList.add("nolink");
+      img.src="./nolink.svg"
+    }
+    // function handleStreamLoad(img){
+    //   nolink.classList.remove("nolink");
+    //   nolink.classList.add("link");
+    // }
+  </script>
+</div>
+
+</body>
+</html>

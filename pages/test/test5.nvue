@@ -1,0 +1,22 @@
+<template>
+	<view class="test5">
+		<lottieAppNvue class="ok"></lottieAppNvue>
+	</view>
+</template>
+
+<script setup>
+import lottieAppNvue from '../../components/lottieApp.nvue';
+</script>
+
+<style>
+   .test5{
+	   width: 750rpx;
+	   height: 750rpx;
+	   display: flex;
+	   justify-content: center;
+	   align-items: center;
+	   background-color: brown;
+   }
+   .ok{
+   }
+</style>

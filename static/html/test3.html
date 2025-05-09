@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>惊艳消息列表UI - 简约版</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+    
+    body {
+      background-color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: #1f2937;
+    }
+    
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    }
+    
+    .header {
+      padding: 30px 24px 20px;
+      background-color: #fff;
+      position: relative;
+    }
+    
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background-color: #e5e7eb;
+    }
+    
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+    }
+    
+    .profile-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .profile-button:hover {
+      background-color: #e5e7eb;
+    }
+    
+    .search-bar {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    
+    .search-input {
+      width: 100%;
+      height: 48px;
+      background-color: #f3f4f6;
+      border-radius: 14px;
+      border: none;
+      padding: 0 20px 0 48px;
+      font-size: 15px;
+      color: #1f2937;
+      transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      background-color: #e5e7eb;
+    }
+    
+    .search-input::placeholder {
+      color: #9ca3af;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+    
+    .filter-tabs {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      background-color: #f3f4f6;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .tab.active {
+      background-color: #111827;
+      color: #ffffff;
+    }
+    
+    .counter-badge {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ef4444;
+      color: white;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      border-radius: 50%;
+      margin-left: 6px;
+    }
+    
+    .messages-container {
+      height: 520px;
+      overflow-y: auto;
+      padding: 0 24px 24px;
+      scrollbar-width: thin;
+      scrollbar-color: #d1d5db transparent;
+    }
+    
+    .messages-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .messages-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb {
+      background-color: #d1d5db;
+      border-radius: 20px;
+    }
+    
+    .date-divider {
+      font-size: 12px;
+      font-weight: 500;
+      color: #9ca3af;
+      margin: 24px 0 16px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .date-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background-color: #e5e7eb;
+      margin-left: 12px;
+    }
+    
+    .message-card {
+      display: flex;
+      padding: 16px;
+      margin-bottom: 12px;
+      background-color: #fff;
+      border-radius: 16px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .message-card:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .message-card.unread {
+      background-color: #f8faff;
+    }
+    
+    .message-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      margin-right: 16px;
+      flex-shrink: 0;
+      overflow: hidden;
+      background-color: #f3f4f6;
+      position: relative;
+    }
+    
+    .message-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .status-indicator {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: #10b981;
+      border: 2px solid #ffffff;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+    
+    .message-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .message-sender {
+      font-weight: 600;
+      font-size: 16px;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .message-time {
+      font-size: 12px;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+    
+    .message-preview {
+      font-size: 14px;
+      color: #6b7280;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.4;
+    }
+    
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .message-badge {
+      padding: 4px 10px;
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+    }
+    
+    .message-badge.blue {
+      background-color: #eff6ff;
+      color: #3b82f6;
+    }
+    
+    .message-badge.red {
+      background-color: #fef2f2;
+      color: #ef4444;
+    }
+    
+    .message-badge.green {
+      background-color: #ecfdf5;
+      color: #10b981;
+    }
+    
+    .message-badge.purple {
+      background-color: #f5f3ff;
+      color: #8b5cf6;
+    }
+    
+    .unread-dot {
+      width: 10px;
+      height: 10px;
+      background-color: #3b82f6;
+      border-radius: 50%;
+      margin-left: auto;
+    }
+    
+    .bottom-nav {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background-color: #ffffff;
+      border-top: 1px solid #f3f4f6;
+    }
+    
+    .nav-button {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 12px;
+      gap: 6px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .nav-button.active {
+      color: #111827;
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      position: relative;
+    }
+    
+    .notification-dot {
+      position: absolute;
+      top: -2px;
+      right: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #ef4444;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message-card {
+      animation: fadeIn 0.3s ease forwards;
+      opacity: 0;
+    }
+    
+    .message-card:nth-child(1) { animation-delay: 0.05s; }
+    .message-card:nth-child(2) { animation-delay: 0.1s; }
+    .message-card:nth-child(3) { animation-delay: 0.15s; }
+    .message-card:nth-child(4) { animation-delay: 0.2s; }
+    .message-card:nth-child(5) { animation-delay: 0.25s; }
+    
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.7; }
+    }
+    
+    .unread-dot {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <div class="header-top">
+        <div class="back-button">
+          <i class="fas fa-arrow-left"></i>
+        </div>
+        <div class="page-title">消息</div>
+        <div class="profile-button">
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+      
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="搜索...">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+      
+      <div class="filter-tabs">
+        <div class="tab active">全部</div>
+        <div class="tab">未读 <span class="counter-badge">4</span></div>
+        <div class="tab">提及我</div>
+        <div class="tab">已标记</div>
+        <div class="tab">已归档</div>
+      </div>
+    </div>
+    
+    <div class="messages-container">
+      <div class="date-divider">今天</div>
+      
+      <div class="message-card unread">
+        <div class="message-avatar">
+          <img src="/api/placeholder/56/56" alt="头像">
+          <div class="status-indicator"></div>
+        </div>
+        <div class="message-content">
+          <div class="message-header">
+            <div class="message-sender">王小明</div>
+            <div class="message-time">10:42</div>
+          </div>
+          <div class="message-preview">嗨，我刚刚查看了您的设计方案，整体非常不错！不过我觉得在用户交互流程上可能还需要一些优化，我已经标记了几个需要讨论的地方。</div>
+          <div class="message-meta">
+            <div class="message-badge blue">设计</div>
+            <div class="unread-dot"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="message-card">
+        <div class="message-avatar">
+          <img src="/api/placeholder/56/56" alt="头像">
+        </div>
+        <div class="message-content">
+          <div class="message-header">
+            <div class="message-sender">系统提醒</div>
+            <div class="message-time">09:15</div>
+          </div>
+          <div class="message-preview">您的账户安全检查已完成，未发现异常登录行为。建议您定期更新密码以确保账户安全。</div>
+          <div class="message-meta">
+            <div class="message-badge">系统</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="message-card unread">
+        <div class="message-avatar">
+          <img src="/api/placeholder/56/56" alt="头像">
+          <div class="status-indicator"></div>
+        </div>
+        <div class="message-content">
+          <div class="message-header">
+            <div class="message-sender">张志远</div>
+            <div class="message-time">08:30</div>
+          </div>
+          <div class="message-preview">关于下周的产品评审会议，我们需要提前准备一些用户反馈数据，您能负责收集这部分信息吗？最好能在周五前完成初步整理。</div>
+          <div class="message-meta">
+            <div class="message-badge purple">项目</div>
+            <div class="unread-dot"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="date-divider">昨天</div>
+      
+      <div class="message-card unread">
+        <div class="message-avatar">
+          <img src="/api/placeholder/56/56" alt="头像">
+        </div>
+        <div class="message-content">
+          <div class="message-header">
+            <div class="message-sender">产品团队</div>
+            <div class="message-time">昨天 16:50</div>
+          </div>
+          <div class="message-preview">我们需要讨论新版本的功能优先级问题，根据用户反馈，我认为我们应该先解决性能问题再添加新功能。您有空讨论这个问题吗？</div>
+          <div class="message-meta">
+            <div class="message-badge red">紧急</div>
+            <div class="unread-dot"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="message-card">
+        <div class="message-avatar">
+          <img src="/api/placeholder/56/56" alt="头像">
+        </div>
+        <div class="message-content">
+          <div class="message-header">
+            <div class="message-sender">技术支持</div>
+            <div class="message-time">昨天 14:22</div>
+          </div>
+          <div class="message-preview">您反馈的应用崩溃问题我们已经修复，这是一个内存管理的问题。新版本已经发布，请更新并测试一下效果如何。</div>
+          <div class="message-meta">
+            <div class="message-badge green">已解决</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="date-divider">周一</div>
+      
+      <div class="message-card">
+        <div class="message-avatar">
+          <img src="/api/placeholder/56/56" alt="头像">
+        </div>
+        <div class="message-content">
+          <div class="message-header">
+            <div class="message-sender">人力资源部</div>
+            <div class="message-time">周一 09:05</div>
+          </div>
+          <div class="message-preview">请所有员工注意，下周五是公司年度团建活动，请提前安排好工作，并在本周三前填写参与意向表格。活动详情将在近期公布。</div>
+          <div class="message-meta">
+            <div class="message-badge">公告</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bottom-nav">
+      <div class="nav-button">
+        <div class="nav-icon">
+          <i class="fas fa-home"></i>
+        </div>
+        <span>首页</span>
+      </div>
+      <div class="nav-button active">
+        <div class="nav-icon">
+          <i class="fas fa-comment-alt"></i>
+          <div class="notification-dot"></div>
+        </div>
+        <span>消息</span>
+      </div>
+      <div class="nav-button">
+        <div class="nav-icon">
+          <i class="fas fa-calendar"></i>
+        </div>
+        <span>日程</span>
+      </div>
+      <div class="nav-button">
+        <div class="nav-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <span>通知</span>
+      </div>
+      <div class="nav-button">
+        <div class="nav-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <span>设置</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 简单的交互效果
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelector('.tab.active').classList.remove('active');
+        this.classList.add('active');
+      });
+    });
+    
+    document.querySelectorAll('.nav-button').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelector('.nav-button.active').classList.remove('active');
+        this.classList.add('active');
+      });
+    });
+    
+    document.querySelectorAll('.message-card.unread').forEach(card => {
+      card.addEventListener('click', function() {
+        this.classList.remove('unread');
+        const unreadDot = this.querySelector('.unread-dot');
+        if (unreadDot) {
+          unreadDot.remove();
+        }
+        
+        // 更新未读消息计数
+        const counterBadge = document.querySelector('.counter-badge');
+        let count = parseInt(counterBadge.textContent);
+        counterBadge.textContent = Math.max(0, count - 1);
+        
+        if (count <= 1) {
+          const notificationDot = document.querySelector('.notification-dot');
+          if (notificationDot) {
+            notificationDot.remove();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@langchain/deepseek": "^0.0.1",
+    "@lottielab/lottie-player": "^1.1.3",
+    "lottie-web": "^5.12.2",
+    "lottie-web-vue": "^2.0.7",
+    "marked": "^15.0.11"
+  }
+}

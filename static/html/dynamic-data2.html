@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ECharts 时间轴精度为秒的柱状图</title>
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 模拟时间数据
+        var baseTime = new Date(2025, 4, 1, 0, 0, 0); // 2025年5月1日 00:00:00
+        var timeData = [];
+        var valueData = [];
+
+        for (var i = 0; i < 10; i++) {
+            timeData.push(baseTime.getTime());
+            valueData.push(Math.round(Math.random() * 100)); // 随机生成值
+            baseTime.setSeconds(baseTime.getSeconds() + 10); // 每次增加10秒
+        }
+
+        console.log("timeData:", timeData);
+        // 组合时间戳和值数据
+        var chartData = timeData.map((time, index) => [time, valueData[index]]);
+        
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '时间轴精度为秒的柱状图'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function (params) {
+                    var date = new Date(params[0].data[0]);
+                    var timeStr = `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+                    return `${params[0].value}<br/>${timeStr}`;
+                }
+            },
+            xAxis: {
+                type: 'time',
+                splitLine: {
+                    show: false
+                },
+                axisLabel: {
+                    formatter: function (value) {
+                        var date = new Date(value);
+                        return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+                    }
+                }
+            },
+            yAxis: {
+                type: 'value',
+                splitLine: {
+                    show: false
+                }
+            },
+            series: [
+                {
+                    name: '数据',
+                    type: 'line',
+                    data: chartData,
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

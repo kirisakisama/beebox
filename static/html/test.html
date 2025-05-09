@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>温度湿度监控系统</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f9fafb;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: #f3f4f6;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background-color: #2563eb;
+    }
+
+    .refresh-btn:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    .refresh-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .refreshing {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .dashboard {
+      /* display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px; */
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cards{
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .card {
+      width: 48%;
+      box-sizing: border-box;
+      background-color: white;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-wrapper {
+      padding: 12px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .temp-icon-wrapper {
+      background-color: #fee2e2;
+    }
+
+    .humidity-icon-wrapper {
+      background-color: #dbeafe;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .temp-icon {
+      color: #ef4444;
+    }
+
+    .humidity-icon {
+      color: #3b82f6;
+    }
+
+    .data {
+      margin-left: 10px;
+    }
+
+    .data-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+    }
+
+    .data-value {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .unit {
+      font-size: 18px;
+      color: #6b7280;
+      margin-left: 4px;
+    }
+
+    .chart-container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 16px;
+    }
+
+    #chart-wrapper {
+      /* height: 400px; */
+      width: 100%;
+      height:300px;
+      position: relative;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">温度湿度<br>监控系统</h1>
+      <button id="refreshBtn" class="refresh-btn">
+        <svg class="refresh-icon" id="refreshIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        刷新数据
+      </button>
+    </div>
+
+    <div class="dashboard">
+      <div class="cards">
+      <div class="card">
+        <div class="icon-wrapper temp-icon-wrapper">
+          <svg class="icon temp-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div class="data">
+          <h2 class="data-label">当前温度</h2>
+          <div class="data-value">
+            <span id="currentTemp" class="value">--.-</span>
+            <span class="unit">°C</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="icon-wrapper humidity-icon-wrapper">
+          <svg class="icon humidity-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 14.5a4 4 0 01-4 4M5 14.5a4 4 0 014-4M14.5 5a4 4 0 014 4M5.5 9a4 4 0 014-4" />
+          </svg>
+        </div>
+        <div class="data">
+          <h2 class="data-label">当前湿度</h2>
+          <div class="data-value">
+            <span id="currentHumidity" class="value">--.-</span>
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="chart-container">
+      <h2 class="chart-title">24小时趋势图</h2>
+      <div id="chart-wrapper">
+        <!-- ECharts 的容器 -->
+        <div id="chart" style="width: 100%; height: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 获取DOM元素
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshIcon = document.getElementById('refreshIcon');
+    const currentTempElement = document.getElementById('currentTemp');
+    const currentHumidityElement = document.getElementById('currentHumidity');
+    const chartDom = document.getElementById('chart'); // ECharts 容器
+    let myChart; // ECharts 实例
+
+    // 初始化 ECharts 图表
+    function initChart() {
+      myChart = echarts.init(chartDom);
+      const option = {
+        title: {
+          text: ''
+        },
+        grid: {
+      left: '2%', // 与容器左侧的距离
+      right: '2%', // 与容器右侧的距离
+      top: '20%', // 与容器顶部的距离
+      bottom: '10%', // 与容器底部的距离
+      borderWidth: 10,
+      containLabel: true,
+    },
+        tooltip: {
+          trigger: 'axis',
+          formatter: function (params) {
+            //console.log(params);
+            let label = `${params[0].axisValueLabel}<br>`;
+            params.forEach(function (param) {
+              label += `${param.seriesName}: ${param.value}<br>`;
+            });
+            return label;
+          }
+        },
+        legend: {
+          data: ['温度 (°C)', '湿度 (%)']
+        },
+        xAxis: {
+          type: 'time',
+          boundaryGap: false,
+          data: [],
+          position: 'bottom',
+          axisLabel: {
+            interval:0,
+            rotate:"45",
+            formatter: function (value) {
+              var date = new Date(value);
+              return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+            }
+          }
+        },
+        yAxis: [
+          {
+            type: 'value',
+            name: '温度 (°C)',
+            min: 15,
+            max: 30,
+            position: 'left',
+            axisLabel: {
+              formatter: '{value} °C'
+            }
+          },
+          {
+            type: 'value',
+            name: '湿度 (%)',
+            min: 30,
+            max: 90,
+            position: 'right',
+            axisLabel: {
+              formatter: '{value} %'
+            }
+          }
+        ],
+        series: [
+          {
+            name: '温度 (°C)',
+            type: 'line',
+            yAxisIndex: 0,
+            data: [],
+            color: '#ef4444'
+          },
+          {
+            name: '湿度 (%)',
+            type: 'line',
+            yAxisIndex: 1,
+            data: [],
+            color: '#3b82f6'
+          }
+        ]
+      };
+      myChart.setOption(option);
+    }
+
+    // 生成模拟数据
+    function generateData() {
+      const data = [];
+      const now = new Date();
+
+      for (let i = 24; i >= 0; i--) {
+        const time = new Date(now.getTime() + i * 1000 * 60 ); // 每30分钟一个数据点
+        const hours = time.getHours().toString().padStart(2, '0');
+        const minutes = time.getMinutes().toString().padStart(2, '0');
+        const hourMinute = `${hours}:${minutes}`;
+
+        data.push({
+          time: time.getTime(), // 使用时间戳
+          timeStr: hourMinute,  // 保留时间字符串用于显示
+          temperature: Math.round((22 + Math.sin(i / 3) * 4 + Math.random() * 2) * 10) / 10,
+          humidity: Math.round((60 + Math.cos(i / 4) * 15 + Math.random() * 5) * 10) / 10
+        });
+      }
+
+      return data;
+    }
+
+    // 更新图,表数据
+    function updateChart(data) {
+      const temperatureData = data.map(item => [item.time, item.temperature]);
+      const humidityData = data.map(item => [item.time, item.humidity]);
+
+      const option = myChart.getOption();
+      option.series[0].data = temperatureData;
+      option.series[1].data = humidityData;
+      // 更新xAxis的最小最大值
+      option.xAxis.min = data[0].time;
+      option.xAxis.max = data[data.length-1].time;
+      myChart.setOption(option);
+
+      // 更新当前温度和湿度
+      const currentData = data[data.length - 1];
+      currentTempElement.textContent = currentData.temperature;
+      currentHumidityElement.textContent = currentData.humidity;
+    }
+
+    // 刷新数据
+    function refreshData() {
+      refreshBtn.disabled = true;
+      refreshIcon.classList.add('refreshing');
+
+      setTimeout(() => {
+        const data = generateData();
+        updateChart(data);
+
+        refreshBtn.disabled = false;
+        refreshIcon.classList.remove('refreshing');
+      }, 1000);
+    }
+
+    // 初始化
+    function init() {
+      initChart();
+      refreshData();
+
+      // 添加刷新按钮事件监听
+      refreshBtn.addEventListener('click', refreshData);
+    }
+
+    // 页面加载完成后初始化
+    window.addEventListener('load', init);
+  </script>
+</body>
+
+</html>

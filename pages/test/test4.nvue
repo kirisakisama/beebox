@@ -1,0 +1,25 @@
+<template>
+	<view class="lottie">
+		<animation-view class="lottieAnimation" :path="path" :loop="true"
+		:autoplay="true" :hidden="false">
+		</animation-view>
+	</view>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+const path = ref('/static/lottie/load.json')
+</script>
+<style scoped>
+	.lottie{
+		width: 100px;
+		height: 100px;
+		overflow: hidden;
+		background-color: aqua;
+	}
+	.lottieAnimation{
+		width: 100%;
+		height: 100%;
+		transform: scale(3.5);
+	}
+</style>

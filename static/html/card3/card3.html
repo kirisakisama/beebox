@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进出数量统计展示</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 10px;
+            /* background-color: #f5f5f5; */
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            padding-top: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .date-time {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+        .in {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        .out {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        .stat-title {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .in .stat-number {
+            color: #27ae60;
+        }
+        .out .stat-number {
+            color: #e74c3c;
+        }
+        .stat-change {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        .progress-container {
+            margin-top: 20px;
+        }
+        .progress-title {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .progress-label {
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+        .progress-value {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .in .progress-value {
+            color: #27ae60;
+        }
+        .out .progress-value {
+            color: #e74c3c;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+        .in .progress-bar {
+            background-color: #2ecc71;
+        }
+        .out .progress-bar {
+            background-color: #e74c3c;
+        }
+        .total-capacity {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .total-capacity h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .total-capacity-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .update-info {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>进出数量统计</h1>
+        <div class="date-time" id="currentDateTime"></div>
+        
+        <div class="stats-container">
+            <div class="stat-box in">
+                <div class="stat-title">今日进入</div>
+                <div class="stat-number" id="inCount">0</div>
+                <div class="stat-change" id="inChange">+0</div>
+            </div>
+            <div class="stat-box out">
+                <div class="stat-title">今日离开</div>
+                <div class="stat-number" id="outCount">0</div>
+                <div class="stat-change" id="outChange">-0</div>
+            </div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-title">
+                <span class="progress-label">进入占比</span>
+                <span class="progress-value" id="inPercentage">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar in" id="inProgressBar" style="width: 0%"></div>
+            </div>
+            
+            <div class="progress-title" style="margin-top: 15px;">
+                <span class="progress-label">离开占比</span>
+                <span class="progress-value" id="outPercentage">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar out" id="outProgressBar" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="total-capacity">
+            <h3>当前容量</h3>
+            <div class="total-capacity-value" id="totalCapacity">0</div>
+        </div>
+        
+        <div class="update-info" id="updateInfo">正在获取最新数据...</div>
+    </div>
+
+    <script>
+        // 模拟数据
+        let inCount = 125;
+        let outCount = 87;
+        let capacity = 300;
+        
+        // 上一次的数值
+        let prevInCount = 118;
+        let prevOutCount = 82;
+        
+        // 显示当前日期时间
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = 
+                now.toLocaleDateString('zh-CN', options);
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            // 计算变化量
+            const inChange = inCount - prevInCount;
+            const outChange = outCount - prevOutCount;
+            
+            // 更新显示
+            document.getElementById('inCount').textContent = inCount;
+            document.getElementById('outCount').textContent = outCount;
+            
+            document.getElementById('inChange').textContent = 
+                inChange > 0 ? `+${inChange}` : inChange;
+            document.getElementById('outChange').textContent = 
+                outChange < 0 ? `${outChange}` : `-${outChange}`;
+            
+            // 计算百分比
+            const total = inCount + outCount;
+            const inPercentage = total > 0 ? Math.round((inCount / total) * 100) : 0;
+            const outPercentage = total > 0 ? Math.round((outCount / total) * 100) : 0;
+            
+            // 更新百分比显示
+            document.getElementById('inPercentage').textContent = `${inPercentage}%`;
+            document.getElementById('outPercentage').textContent = `${outPercentage}%`;
+            
+            // 更新进度条
+            document.getElementById('inProgressBar').style.width = `${inPercentage}%`;
+            document.getElementById('outProgressBar').style.width = `${outPercentage}%`;
+            
+            // 计算容量
+            document.getElementById('totalCapacity').textContent = capacity;
+            
+            // 更新最后更新时间
+            document.getElementById('updateInfo').textContent = `最后更新: ${new Date().toLocaleTimeString()}`;
+            
+            // 保存当前值为上一次值
+            prevInCount = inCount;
+            prevOutCount = outCount;
+        }
+        
+        // 初始化
+        updateDateTime();
+        updateStats();
+        
+        // 模拟数据变化
+        setInterval(() => {
+            // 每10秒生成新数据
+            inCount = Math.floor(Math.random() * 200) + 100;
+            outCount = Math.floor(Math.random() * 150) + 50;
+            capacity = Math.floor(Math.random() * 200) + 200;
+            
+            // 更新UI
+            updateStats();
+        }, 10000);
+        
+        // 每秒更新时间
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>

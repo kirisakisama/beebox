@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时监控 - 视频展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a2e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #0f3460;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #0f3460;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        
+        .video-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            background-color: #000;
+        }
+        
+        #liveVideo {
+            width: 100%;
+            height: 600px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .video-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #0f3460;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .camera-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4caf50;
+        }
+        
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 15px;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            background-color: #0f3460;
+            border-radius: 10px;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #0a98f0;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-signal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">监控系统</div>
+        <div class="user-info">
+            <div class="user-details">管理员</div>
+            <div class="user-avatar">A</div>
+        </div>
+    </header>
+    
+    <div class="video-container">
+        <video id="liveVideo" poster="http://localhost/camera/"></video>
+        
+        <div class="video-controls">
+            <div class="control-buttons">
+                <button class="control-btn" id="playBtn">▶</button>
+                <button class="control-btn" id="pauseBtn">⏸</button>
+                <button class="control-btn" id="snapshotBtn">📷</button>
+                <button class="control-btn" id="recordBtn">⚫</button>
+            </div>
+            
+            <div class="control-buttons">
+                <button class="control-btn" id="fullscreenBtn">⤢</button>
+                <button class="control-btn" id="micBtn">🎤</button>
+                <button class="control-btn" id="settingsBtn">⚙️</button>
+            </div>
+        </div>
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="no-signal" id="noSignal" style="display: none;">
+            <h3>无信号</h3>
+            <p>请检查网络连接或摄像头状态</p>
+        </div>
+    </div>
+    
+    <div class="video-info">
+        <div class="camera-name">入口大厅 - 摄像头1</div>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>实时在线</span>
+        </div>
+    </div>
+    
+    <footer>
+        © 2023 实时监控系统 | 最后更新: <span id="updateTime"></span>
+    </footer>
+
+    <script>
+        // 设置当前时间
+        document.getElementById('updateTime').textContent = new Date().toLocaleString();
+        
+        // 模拟视频流加载逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoElement = document.getElementById('liveVideo');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const noSignal = document.getElementById('noSignal');
+            
+            // 显示加载动画
+            loadingOverlay.style.display = 'flex';
+            
+            // 模拟延迟加载
+            setTimeout(() => {
+                // 在实际应用中，这里应该是实时视频流的URL
+                // videoElement.src = "rtmp://your-streaming-server/live/stream-key";
+                videoElement.src = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4";
+                
+                videoElement.addEventListener('loadedmetadata', function() {
+                    loadingOverlay.style.display = 'none';
+                    console.log('视频元数据已加载');
+                    videoElement.play();
+                });
+                
+                videoElement.addEventListener('error', function(e) {
+                    loadingOverlay.style.display = 'none';
+                    console.error('视频加载出错:', e);
+                    noSignal.style.display = 'block';
+                });
+            }, 2000);
+            
+            // 视频控制按钮功能
+            document.getElementById('playBtn').addEventListener('click', () => {
+                videoElement.play();
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                videoElement.pause();
+            });
+            
+            document.getElementById('fullscreenBtn').addEventListener('click', () => {
+                if (videoElement.requestFullscreen) {
+                    videoElement.requestFullscreen();
+                } else if (videoElement.webkitRequestFullscreen) {
+                    videoElement.webkitRequestFullscreen();
+                } else if (videoElement.msRequestFullscreen) {
+                    videoElement.msRequestFullscreen();
+                }
+            });
+            
+            document.getElementById('snapshotBtn').addEventListener('click', () => {
+                console.log('抓拍图片');
+                // 实际应用中这里应该是截图功能
+            });
+            
+            document.getElementById('recordBtn').addEventListener('click', () => {
+                console.log('开始/停止录像');
+                // 实际应用中这里应该是录像功能
+            });
+            
+            document.getElementById('micBtn').addEventListener('click', () => {
+                console.log('切换麦克风状态');
+                // 实际应用中这里应该是音频切换功能
+            });
+            
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                console.log('打开设置面板');
+                // 实际应用中这里应该是打开设置面板功能
+            });
+        });
+    </script>
+</body>
+</html>
